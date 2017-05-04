@@ -22,10 +22,12 @@ class BackendServer:
         self.indicacao()
         self.listenProbes()
 
+
     def indicacao(self):
         register = {'type': 'register'}
         msg = json.dumps(register).encode("utf-8")
         self.socket.sendto(msg, (config.rproxy_ip, config.port))
+
 
     def listenProbes(self):
         while True:

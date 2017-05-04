@@ -1,4 +1,4 @@
-import threading
+import threading, socket, sys, SocketServer
 
 class TcpConnector(Thread):
 
@@ -8,10 +8,3 @@ class TcpConnector(Thread):
         self.client = sock
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.bind((self.endereco, 80))
-
-
-
-
-
-
-
