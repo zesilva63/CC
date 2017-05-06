@@ -1,53 +1,44 @@
-import random, socket, sys, threading
+import socket
+from threading import Thread
+from SocketServer import ThreadingMixIn
 
-class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
+class ClientThread(Thread):
 
-    def handle(self):
-        # receive request
-        data = str(self.request.recv(2048), 'ascii')
+    def __init__(self,client_sock,backend_sock):
+        Thread.__init__(self)
+        self.client_sock = client_sock
+        self.backend_sock = backend_sock
 
-        # choose best
-        # connect to best
-        # send data to best
 
-        # returns current thread
-        cur_thread = threading.current_thread()
-        # mete a data em bytes
-        response = bytes("{}: {}".format(cur_thread.name, data), 'ascii')
-        # envia os mesmos dados
-        self.request.sendall(response)
+        def run(self):
+            data = self.client_sock.recv(BUFFER_SIZE)
+            while True:
+                if not data:
+                    self.backend_sock.close()
+                    break
+                self.backend_sock.send(data)
+                data = self.client_sock.recv(BUFFER_SIZE)
 
-class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    pass
 
-"""
-def client(ip, port, message):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((ip, port))
-    try:
-        sock.sendall(bytes(message, 'ascii'))
-        response = str(sock.recv(1024), 'ascii')
-        print("Received: {}".format(response))
-    finally:
-        sock.close()
-"""
 
-if __name__ == "__main__":
-    HOST, PORT = "localhost", 80
-    server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
-    ip, port = server.server_address
+TCP_IP = 'localhost'
+TCP_PORT = 80
+BUFFER_SIZE = 4086
 
-    # Start a thread with the server -- that thread will then start one
-    # more thread for each request
-    server_thread = threading.Thread(target=server.serve_forever)
-    # Exit the server thread when the main thread terminates
-    server_thread.daemon = True
-    server_thread.start()
-    print("Server loop running in thread:", server_thread.name)
+tcpServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+tcpServer.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+tcpServer.bind((TCP_IP, TCP_PORT))
+threads = []
 
-    client(ip, port, "Hello World 1")
-    client(ip, port, "Hello World 2")
-    client(ip, port, "Hello World 3")
+while True:
+    tcpServer.listen(20)
+    print("Multithreaded Python server : Waiting for connections from TCP clients...")
+    (client_socket, (ip,port)) = tcpServer.accept()
+    #backend_socket = chooseBest()
+    thread = ClientThread(client_socket,backend_socket)
+    thread.start()
+    threads.append(thread)
 
-    server.shutdown()
-    server.server_close()
+
+for t in threads:
+    t.join()
