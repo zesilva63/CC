@@ -1,9 +1,9 @@
 import http.server
 import socketserver
 
-PORT = 80
+TCP_PORT = 80
 
 Handler = http.server.SimpleHTTPRequestHandler
 
-with socketserver.TCPServer(("", PORT), Handler) as httpd:
+with socketserver.TCPServer(("localhost",TCP_PORT), Handler) as httpd:
     httpd.serve_forever()
