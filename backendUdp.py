@@ -8,7 +8,7 @@ class BackendServer:
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET,
                                     socket.SOCK_DGRAM)
-        self.socket.bind(('', config.port))
+        self.socket.bind(('', config.udp_port))
 
         #self.indicacao()
         self.listenProbes()
@@ -16,7 +16,7 @@ class BackendServer:
 
     def indicacao(self):
         msg = "".encode("utf-8")
-        self.socket.sendto(msg, (config.rproxy_ip, config.port))
+        self.socket.sendto(msg, (config.rproxy_ip, config.udp_port))
 
 
     def listenProbes(self):

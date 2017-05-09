@@ -1,22 +1,21 @@
-TCP_IP = 'localhost'
-TCP_PORT = 80
-BUFFER_SIZE = 4086
+import proxyserver
+import clientHandler
+import config
 
 def main():
 
-    
-
+    monitor = proxyserver.ProxyServerMonitor()
     tcpServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tcpServer.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    tcpServer.bind((TCP_IP, TCP_PORT))
+    tcpServer.bind((config.TCP_IP, config.TCP_PORT))
     threads = []
 
     while True:
-        tcpServer.listen(20)
+        tcpServer.listen(30)
         print("Multithreaded Python server : Waiting for connections from TCP clients...")
         (client_socket, (ip,port)) = tcpServer.accept()
-        #backend_socket = chooseBest()
-        thread = ClientThread(client_socket,backend_socket)
+        #backend_ip = monitor.chooseBest()
+        thread = clientHandler.ClientThread(client_socket,backend_ip)
         thread.start()
         threads.append(thread)
 
