@@ -1,8 +1,8 @@
 import socket
 import time
-import config
 import json
 from threading import Thread
+import config
 
 
 class Server:
@@ -26,7 +26,7 @@ class ProxyServerMonitor:
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET,
                                     socket.SOCK_DGRAM)
-        self.socket.bind(('', config.port))
+        self.socket.bind(('', config.udp_port))
         self.servers = set()
 
         t1 = Thread(target=self.listen)
