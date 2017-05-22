@@ -1,34 +1,38 @@
-import random
 import socket
-
+import json
 import config
 
-class BackendServer:
+
+def response(msg):
+    return {''}
+
+
+class BackendUDP:
 
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET,
                                     socket.SOCK_DGRAM)
         self.socket.bind(('', config.udp_port))
 
-        #self.indicacao()
+        self.indicacao()
         self.listenProbes()
 
-
     def indicacao(self):
-        msg = "".encode("utf-8")
-        self.socket.sendto(msg, (config.rproxy_ip, config.udp_port))
-
+        msg = {'type': 'register'}
+        self.socket.sendto(json.dumps(msg.encode("utf-8")),
+                           (config.rproxy_ip, config.udp_port))
 
     def listenProbes(self):
         while True:
             msg, address = self.socket.recvfrom(1024)
-            print(address)
-            msg = msg.decode()[::-1].encode()
-            self.socket.sendto(msg, address)
+            if msg['type'] == 'probe_request':
+                r = response(msg)
+                self.socket.sendto(json.dumps(r.encode("utf-8")),
+                                   address)
 
 
 def main():
-    BackendServer()
+    BackendUDP()
 
 
 if __name__ == "__main__":
