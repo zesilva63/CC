@@ -1,10 +1,17 @@
 import socket
+import os
 import json
 import config
+from subprocess import check_output
 
 
 def response(msg):
-    return {''}
+    normalized_tcp = int(check_output("netstat | grep tcp | wc -l", shell=True)) /  \
+                     int(check_output("ulimit -n", shell=True))
+    return {'seq': msg['seq'],
+            'load': os.getloadavg()[0],
+            'tcp': normalized_tcp
+            }
 
 
 class BackendUDP:
@@ -27,11 +34,12 @@ class BackendUDP:
             msg, address = self.socket.recvfrom(1024)
             if msg['type'] == 'probe_request':
                 r = response(msg)
-                self.socket.sendto(json.dumps(r.encode("utf-8")),
+                self.socket.sendto(json.dumps(r).encode("utf-8"),
                                    address)
 
 
 def main():
+    # print(response({'seq': 0}))
     BackendUDP()
 
 
