@@ -69,8 +69,8 @@ class MonitorConnection:
             return self.avg_tcp_load(N) - other.avg_tcp_load(N)
         if self.avg_load(N) > 1 or other.avg_load(N) > 1:
             return self.avg_load(N) - other.avg_load(N)
-        if abs(self.misses(N) - other.misses(N)) <= 2 or \
-           abs(self.misses(N) - other.misses(N)) <= 2:
+        if abs(self.misses(N) - other.misses(N)) >= 2 or \
+           abs(self.misses(N) - other.misses(N)) >= 2:
             return self.misses(N) < other.misses(N)
         return self.avg_rtt(N) < other.avg_rtt(N)
 
@@ -100,10 +100,11 @@ class ProxyServerMonitor:
             msg, address = self.socket.recvfrom(1024)
 
             msg = json.loads(msg.decode())
+            print("Recebeu:", msg)
 
-            if msg['type'] == 'register':
+            if 'type' in msg and msg['type'] == 'register':
                 self.servers[address] = MonitorConnection()
-                self.servers[address].probe_response(msg)
+                # self.servers[address].probe_response(msg)
 
                 print("Register", address)
             else:
@@ -120,8 +121,8 @@ class ProxyServerMonitor:
         while True:
             for server in self.servers:
                 msg = shout_msg(sequence)
-                server.probe_request(msg)
-                self.socket.sendto(json.dumps(msg.encode()), server)
+                self.servers[server].probe_request(msg)
+                self.socket.sendto(json.dumps(msg).encode(), server)
 
             time.sleep(5)
             sequence += 1
