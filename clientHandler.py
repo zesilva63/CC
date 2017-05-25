@@ -9,7 +9,6 @@ class ClientThread(Thread):
     def __init__(self,client_sock,backend_ip):
         Thread.__init__(self)
         self.client_sock = client_sock
-        # PRECISO QUE RETORNE O IP DO BACKEND
         self.backend_ip = backend_ip
 
 
